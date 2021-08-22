@@ -74,7 +74,7 @@ function handleReplyToCommands(channel, tags, message, self)  {
   }
 
   const variables = {
-    user: '@' + tags.username,
+    user: '@' + tags['display-name'],
     param: message.split(' ')[1],
   }
 
