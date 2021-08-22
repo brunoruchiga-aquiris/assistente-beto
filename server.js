@@ -213,7 +213,7 @@ function getResponseToEvent(eventName, variables) {
 }
 
 const publicCommands = [
-  ["!oi", "Oiiii!! <3", "Oiiii!! <3"],
+  ["!oi", "Oiiii!! <3"],
   ["!beto", "Oiii {user}!!! <3 To aqui! Os comandos que você pode usar no chat são: !twitter, !instagram, !showdi, !playlist, !colab e !luzes."],
   ["!twitter", "Gente, o twitter do Gabriel é twitter.com/moskito tá?"],
   ["!instagram", "O insta do Gabriel é instagr.am/vondoscht mas ele quase nunca posta afffff"],
