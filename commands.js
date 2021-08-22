@@ -49,3 +49,5 @@ export const customCommands = [
     cooldownSeconds: 20,
   },
 ]
+
+//Teste de edição
