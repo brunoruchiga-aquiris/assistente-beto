@@ -1,5 +1,7 @@
 console.log('\n\n\n\n\nInitialized.')
 
+import { customCommands } from './commands.js';
+
 import dotenv from 'dotenv';
 dotenv.config();
 
