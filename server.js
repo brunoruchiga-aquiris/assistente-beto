@@ -29,44 +29,89 @@ const client = new tmi.Client({
 	channels: [ channelName ]
 });
 client.connect();
-client.on('message', (channel, tags, message, self) => {
-	if(self) return;
-  handleReplyToCommands(channel, tags, message, self);
-});
+
 client.on("hosted", (channel, username, viewers, autohost) => {
+    const variables = {
+      user:username,
+      viewers:viewers
+    }
+    client.say(channel, getResponseToEvent("hosted", variables));
     console.log('Sendo hospedado por ' + username + ' para ' + viewers + ' pessoas');
 });
+
 client.on("raided", (channel, username, viewers) => {
+    const variables = {
+      user:username,
+      viewers:viewers
+    }
+    client.say(channel, getResponseToEvent("raided", variables));
     console.log('Sendo invadido por ' + username + ' com ' + viewers + ' pessoas');
 });
+
 client.on("subscription", (channel, username, method, message, userstate) => {
+    const variables = {
+      user:username
+    }
+    client.say(channel, getResponseToEvent("subscription", variables));
     console.log(username + ' se inscreveu no canal! (' + method + ')');
+    //TODO: check if methos is Prime
 });
+
 client.on("resub", (channel, username, streakMonths, message, userstate, method) => {
     // if(userstate["msg-param-should-share-streak"]) {
     //   let cumulativeMonths = ~~userstate["msg-param-cumulative-months"];
     // }
-    console.log(username + ' renovou sua inscrição no canal! (' + methods + ')');
-    if(streakMonths > 0) {
-      console.log(streakMonths + ' meses');
+    // if(streakMonths > 0) {
+    //   console.log(streakMonths + ' meses');
+    // }
+    const variables = {
+      user:username
     }
+    client.say(channel, getResponseToEvent("resub", variables));
+    console.log(username + ' renovou sua inscrição no canal! (' + methods + ')');
+    //TODO: check if methos is Prime
 });
+
 client.on("subgift", (channel, username, streakMonths, recipient, methods, userstate) => {
     // let senderCount = ~~userstate["msg-param-sender-count"];
+    const variables = {
+      user:username,
+      outrouser:recipient
+    }
+    client.say(channel, getResponseToEvent("subgift", variables));
 });
+
 client.on("submysterygift", (channel, username, numbOfSubs, methods, userstate) => {
     // let senderCount = ~~userstate["msg-param-sender-count"];
+    const variables = {
+      user:username,
+      quantidade:numbOfSubs
+    }
+    client.say(channel, getResponseToEvent("submysterygift", variables));
 });
+
 client.on("cheer", (channel, userstate, message) => {
-    console.log(userstate['display-name'] + " mandou " + userstate.bits + " bits!");
+    const variables = {
+      user:userstate['display-name'],
+      quantidade:userstate.bits
+    }
+    console.log(userstate);
+
+    if(userstate['display-name'].toLowerCase() == 'AnAnonymousCheerer'.toLowerCase()) {
+      client.say(channel, getResponseToEvent("cheer-anonymous", variables));
+      console.log("Anônimo mandou " + userstate.bits + " bits!");
+    } else {
+      client.say(channel, getResponseToEvent("cheer", variables));
+      console.log(userstate['display-name'] + " mandou " + userstate.bits + " bits!");
+    }
 });
 
+client.on('message', (channel, tags, message, self) => {
+	if(self) return;
 
-
-function handleReplyToCommands(channel, tags, message, self)  {
   let command = replaceAllAliases(message.toLowerCase().split(' ')[0]);
   //let command = replaceAllAliases(message.toLowerCase());
-  console.log('command: ' + command);
+  //console.log('command: ' + command);
   if(!command) return;
   if(isCommandInCooldown(command)) {
     console.log('Command ' + command + ' is in cooldown');
@@ -85,7 +130,8 @@ function handleReplyToCommands(channel, tags, message, self)  {
   client.say(channel, response);
   registerCooldown(command);
   return;
-}
+});
+
 function registerCooldown(command) {
   commandsRecentlyUsed.push(command);
   setTimeout(() => {
@@ -139,10 +185,9 @@ function getResponse(command, variables, isMod) {
       }
     }
   }
-  console.log('Error: response not found');
+  //console.log('Error: response not found');
   return undefined;
 }
-
 function getCommands(isMod) {
   if(isMod) {
     return publicCommands.concat(privateCommands);
@@ -150,10 +195,24 @@ function getCommands(isMod) {
     return publicCommands;
   }
 }
+function getResponseToEvent(eventName, variables) {
+  for(let i = 0; i < events.length; i++) {
+    if(eventName == events[i][0]) {
+      let possibleResponses = events[i].slice();
+      possibleResponses.splice(0, 1); //get only responses, remove command (first element in the array)
+      const randomIndex = Math.floor(Math.random()*possibleResponses.length);
+      let message = possibleResponses[randomIndex];
+      if(message) {
+        message = replaceAllVariables(message, variables);
+        return message;
+      }
+    }
+  }
+  //console.log('Error: response not found');
+  return undefined;
+}
 
 const publicCommands = [
-  //["!comando", "resposta"],
-  //["!comando", "resposta1", "resposta2", "resposta3", ...],
   ["!oi", "Oiiii!! <3"],
   ["!beto", "Oiii {user}!!! <3 To aqui! Os comandos que você pode usar no chat são: !twitter, !instagram, !showdi, !playlist, !colab e !luzes."],
   ["!twitter", "Gente, o twitter do Gabriel é twitter.com/moskito tá?"],
@@ -165,6 +224,19 @@ const publicCommands = [
 ]
 const privateCommands = [
   ["!so", "Gente, segue lá o canal twitch.tv/{param} <3"],
+]
+const events = [
+  ["hosted", "Gente!!! {user} tá agora mesmo hospedando a live no canal dele."],
+  ["raided", "Mano do céu!!! {user} mandou uma RAID com {viewers} pessoas!"],
+  ["subscription", "Eita, gente! Agora {user} é SUB do canal! Valeu!", "Ow!!! {user} deu SUB no canal! Valeu! <3"],
+  ["subscription-prime", "Eita!!! {user} virou SUB com seu Prime. Valeu!", "Gente!!! {user} virou SUB com o Prime. <3"],
+  ["resub", "Cê é louco? {user} renovou o SUB. Valeu demais!"],
+  ["resub-prime", "Cê é louco? {user} renovou o SUB usando o Prime. Valeu!"],
+  ["subgift", "Eita! {user} de um SUB de presente pra {outrouser}.", "Oxe! {outrouser} ganhou um SUB de presente de {user}."],
+  ["submysterygift", "Mano do céu!!! {user} tá dando SUB de presente pro chat!"],
+  ["cheer", "Eita!!! {user} mandou {quantidade} bits. Valeu demais!", "Gente!! tem mais {quantidade} bits chegando. Obrigado, {user}!", "Ow!!! {user} mandou {quantidade} bits. <3"],
+  ["cheer-anonymous", "Oxe?! Um anônimo deu {quantidade} bits. Quem foi??"],
+  ["follow", "Gente!! {user} começou a seguir o canal.", "Oxe! Mais um seguidor. Obrigado, {user}!", "Eita! {user} deu follow no canal. <3"],
 ]
 const aliases = [
   ["!showdi", "!showdebola"],
