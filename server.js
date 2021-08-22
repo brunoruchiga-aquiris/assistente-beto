@@ -243,3 +243,12 @@ const aliases = [
   ["!instagram", "!insta"],
   ["!spotify", "!playlist"],
 ]
+
+/*
+TODO:
+- Follow Event
+- Sorteio
+- Responder luzes para não-subs
+- Refatorar organização do código
+
+*/
