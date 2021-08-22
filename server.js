@@ -33,6 +33,35 @@ client.on('message', (channel, tags, message, self) => {
 	if(self) return;
   handleReplyToCommands(channel, tags, message, self);
 });
+client.on("hosted", (channel, username, viewers, autohost) => {
+    console.log('Sendo hospedado por ' + username + ' para ' + viewers + ' pessoas');
+});
+client.on("raided", (channel, username, viewers) => {
+    console.log('Sendo invadido por ' + username + ' com ' + viewers + ' pessoas');
+});
+client.on("subscription", (channel, username, method, message, userstate) => {
+    console.log(username + ' se inscreveu no canal! (' + method + ')');
+});
+client.on("resub", (channel, username, streakMonths, message, userstate, method) => {
+    // if(userstate["msg-param-should-share-streak"]) {
+    //   let cumulativeMonths = ~~userstate["msg-param-cumulative-months"];
+    // }
+    console.log(username + ' renovou sua inscrição no canal! (' + methods + ')');
+    if(streakMonths > 0) {
+      console.log(streakMonths + ' meses');
+    }
+});
+client.on("subgift", (channel, username, streakMonths, recipient, methods, userstate) => {
+    // let senderCount = ~~userstate["msg-param-sender-count"];
+});
+client.on("submysterygift", (channel, username, numbOfSubs, methods, userstate) => {
+    // let senderCount = ~~userstate["msg-param-sender-count"];
+});
+client.on("cheer", (channel, userstate, message) => {
+    console.log(userstate['display-name'] " mandou " + userstate.bits + " bits!");
+});
+
+
 
 function handleReplyToCommands(channel, tags, message, self)  {
   let command = replaceAllAliases(message.toLowerCase().split(' ')[0]);
