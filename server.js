@@ -58,7 +58,7 @@ client.on("submysterygift", (channel, username, numbOfSubs, methods, userstate) 
     // let senderCount = ~~userstate["msg-param-sender-count"];
 });
 client.on("cheer", (channel, userstate, message) => {
-    console.log(userstate['display-name'] " mandou " + userstate.bits + " bits!");
+    console.log(userstate['display-name'] + " mandou " + userstate.bits + " bits!");
 });
 
 
